@@ -19,9 +19,9 @@ private node ej25_head {
     input exhaust_camshaft;
     input chamber_volume: 100.5 * units.cc;
     input intake_runner_volume: 149.6 * units.cc;
-    input intake_runner_cross_section_area: 1.35 * units.inch * 1.35 * units.inch;
-    input exhaust_runner_volume: 50.0 * units.cc;
-    input exhaust_runner_cross_section_area: 1.25 * units.inch * 1.25 * units.inch;
+    input intake_runner_cross_section_area: 1.15 * units.inch * 1.15 * units.inch;
+    input exhaust_runner_volume: 75.0 * units.cc;
+    input exhaust_runner_cross_section_area: 1.05 * units.inch * 1.05 * units.inch;
 
     input flow_attenuation: 1.0;
     input lift_scale: 1.0;
@@ -75,7 +75,7 @@ private node ej25_camshaft {
     input lobe_profile;
     input intake_lobe_profile: lobe_profile;
     input exhaust_lobe_profile: lobe_profile;
-    input lobe_separation: 114 * units.deg;
+    input lobe_separation: 110 * units.deg;
     input intake_lobe_center: lobe_separation;
     input exhaust_lobe_center: lobe_separation;  
     input advance: 0 * units.deg; 
@@ -101,23 +101,24 @@ private node ej25_camshaft {
 	label rot120(120 * units.deg)
     label rot360(360 * units.deg)
 	// bank 0 = 1,3,5 - bank 1 = 2,4,6
+	// 1 6 3 2 5 4
     _exhaust_cam_0
-        .add_lobe(rot360 - exhaust_lobe_center + (0.0 / 3) * rot360)//
-        .add_lobe(rot360 - exhaust_lobe_center + (1.0 / 3) * rot360)
-		.add_lobe(rot360 - exhaust_lobe_center + (2.0 / 3) * rot360)//
+        .add_lobe(rot360 - exhaust_lobe_center + (0.0 / 6) * cycle)//
+        .add_lobe(rot360 - exhaust_lobe_center + (2.0 / 6) * cycle)
+		.add_lobe(rot360 - exhaust_lobe_center + (4.0 / 6) * cycle)//
     _intake_cam_0
-        .add_lobe(rot360 + intake_lobe_center + (0.0 / 3) * rot360)//
-        .add_lobe(rot360 + intake_lobe_center + (1.0 / 3) * rot360)
-		.add_lobe(rot360 + intake_lobe_center + (2.0 / 3) * rot360)//
+        .add_lobe(rot360 + intake_lobe_center + (0.0 / 6) * cycle)//
+        .add_lobe(rot360 + intake_lobe_center + (2.0 / 6) * cycle)
+		.add_lobe(rot360 + intake_lobe_center + (4.0 / 6) * cycle)//
 
     _exhaust_cam_1
-        .add_lobe(rot360 - exhaust_lobe_center + ((3.0 + 0.0) / 3) * rot360)
-        .add_lobe(rot360 - exhaust_lobe_center + ((4.0 + 0.0) / 3) * rot360)
-		.add_lobe(rot360 - exhaust_lobe_center + ((5.0 + 0.0) / 3) * rot360)//
+        .add_lobe(rot360 - exhaust_lobe_center + (3.0 / 6) * cycle)
+        .add_lobe(rot360 - exhaust_lobe_center + (5.0 / 6) * cycle)
+		.add_lobe(rot360 - exhaust_lobe_center + (1.0 / 6) * cycle)//
     _intake_cam_1
-        .add_lobe(rot360 + intake_lobe_center + ((3.0 + 0.0) / 3) * rot360)
-        .add_lobe(rot360 + intake_lobe_center + ((4.0 + 0.0) / 3) * rot360)
-		.add_lobe(rot360 + intake_lobe_center + ((5.0 + 0.0) / 3) * rot360)//
+        .add_lobe(rot360 + intake_lobe_center + (3.0 / 6) * cycle)
+        .add_lobe(rot360 + intake_lobe_center + (5.0 / 6) * cycle)
+		.add_lobe(rot360 + intake_lobe_center + (1.0 / 6) * cycle)//
 }
 
 public node subaru_ej25 {
@@ -130,11 +131,11 @@ public node subaru_ej25 {
         redline: 7200 * units.rpm,
         fuel: fuel(
             max_turbulence_effect: 2.5,
-            max_burning_efficiency: 0.8
+            max_burning_efficiency: 0.75
         ),
         throttle_gamma: 2.0,
-        hf_gain: 0.01,
-        noise: 1.0,
+        hf_gain: 0.004,
+        noise: 0.5,
         jitter: 0.5,
         simulation_frequency: 20000
     )
@@ -146,7 +147,7 @@ public node subaru_ej25 {
     label rod_length(125 * units.mm)
     label rod_mass(535 * units.g)
     label compression_height(30.3 * units.mm)
-    label crank_mass(9.39 * units.kg)
+    label crank_mass(13.0 * units.kg)
     label flywheel_mass(6.8 * units.kg)
     label flywheel_radius(6 * units.inch)
 
@@ -172,22 +173,23 @@ public node subaru_ej25 {
         tdc: 180 * units.deg
     )
 
-    rod_journal rj0(angle: 0.0 * units.deg)
-    rod_journal rj1(angle: 180.0 * units.deg)
-    rod_journal rj2(angle: 120.0 * units.deg)
-    rod_journal rj3(angle: 300.0 * units.deg)
-	rod_journal rj4(angle: 240.0 * units.deg)
-	rod_journal rj5(angle: 60.0 * units.deg)
+    rod_journal rj1(angle: (0.0 / 6) * 360 * units.deg)
+	rod_journal rj6(angle: (5.0 / 6) * 360 * units.deg)
+	rod_journal rj3(angle: (4.0 / 6) * 360 * units.deg)
+    rod_journal rj2(angle: (3.0 / 6) * 360 * units.deg)
+    rod_journal rj5(angle: (2.0 / 6) * 360 * units.deg)
+    rod_journal rj4(angle: (1.0 / 6) * 360 * units.deg)
+	
     c0
-        .add_rod_journal(rj0)
         .add_rod_journal(rj1)
         .add_rod_journal(rj2)
         .add_rod_journal(rj3)
-		.add_rod_journal(rj4)
+        .add_rod_journal(rj4)
 		.add_rod_journal(rj5)
+		.add_rod_journal(rj6)
 
     piston_parameters piston_params(
-        mass: (390 + 152) * units.g, // 414 - piston mass, 152 - pin weight
+        mass: (370 + 152) * units.g, 
         compression_height: compression_height,
         wrist_pin_position: 0.0,
         displacement: 0.0
@@ -204,70 +206,80 @@ public node subaru_ej25 {
     )
 
     intake intake(
-        plenum_volume: 1.325 * units.L,
+        plenum_volume: 1.825 * units.L,
         plenum_cross_section_area: 20.0 * units.cm2,
         intake_flow_rate: k_carb(800.0),
         runner_flow_rate: k_carb(250.0),
         runner_length: 12.0 * units.inch,
         idle_flow_rate: k_carb(0.0),
         idle_throttle_plate_position: 0.9985,
-        velocity_decay: 0.5
+        velocity_decay: 0.4
     )
 
     exhaust_system_parameters es_params(
-        outlet_flow_rate: k_carb(1000.0),
-        primary_tube_length: 10.0 * units.inch,
-        primary_flow_rate: k_carb(200.0),
-        velocity_decay: 1.0,
-        volume: 100.0 * units.L
+        outlet_flow_rate: k_carb(300.0),
+        //primary_tube_length: 15.0 * units.inch,
+        primary_flow_rate: k_carb(100.0),
+        velocity_decay: 0.0,
+        volume: 80.0 * units.L
     )
 
     exhaust_system exhaust0(
         es_params,
-        audio_volume: 0.5 * 8,
-        impulse_response: ir_lib.mild_exhaust_0
+		length: 180.0 * units.inch,
+        audio_volume: 1.0 * 3,
+        impulse_response: ir_lib.ez_exhaust
     )
     exhaust_system exhaust1(
         es_params,
-        audio_volume: 1.0 * 8,
-        impulse_response: ir_lib.mild_exhaust_0
+		length: 180.0 * units.inch,
+        audio_volume: 1.0 * 3,
+        impulse_response: ir_lib.ez_exhaust
     )
 
     cylinder_bank_parameters bank_params(
         bore: bore,
         deck_height: stroke / 2 + rod_length + compression_height
     )
-
+	
+	label spacing(3.5 * units.inch)
+	label basePrimary(2.0 * units.inch)
     cylinder_bank b0(bank_params, angle: 90.0 * units.deg)
     cylinder_bank b1(bank_params, angle: -90.0 * units.deg)
     b0
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.001)),
             connecting_rod: connecting_rod(cr_params),
-            rod_journal: rj0,
+            rod_journal: rj1,
             intake: intake,
             exhaust_system: exhaust0,
+			primary_length: (spacing * 3) + basePrimary,
+			sound_attenuation: 1.5,
             ignition_wire: wires.wire1
         )
         .add_cylinder(
-            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
             connecting_rod: connecting_rod(cr_params),
-            rod_journal: rj2,
+            rod_journal: rj3,
             intake: intake,
             exhaust_system: exhaust0,
+			primary_length: (spacing * 2) + basePrimary,
+			sound_attenuation: 1.5,
             ignition_wire: wires.wire3
         )
 		.add_cylinder(
-            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
             connecting_rod: connecting_rod(cr_params),
-            rod_journal: rj4,
+            rod_journal: rj5,
             intake: intake,
             exhaust_system: exhaust0,
+			primary_length: (spacing * 1) + basePrimary,
+			sound_attenuation: 1.5,
             ignition_wire: wires.wire5
         )
         .set_cylinder_head(
             ej25_head(
-                flip_display: true,
+				flip_display: true,
                 intake_camshaft: camshaft.intake_cam_0,
                 exhaust_camshaft: camshaft.exhaust_cam_0)
         )
@@ -275,25 +287,31 @@ public node subaru_ej25 {
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.001)),
             connecting_rod: connecting_rod(cr_params),
-            rod_journal: rj1,
+            rod_journal: rj2,
             intake: intake,
             exhaust_system: exhaust1,
+			primary_length: (spacing * 3) + basePrimary,
+			sound_attenuation: 1.5,
             ignition_wire: wires.wire2
         )
         .add_cylinder(
-            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
             connecting_rod: connecting_rod(cr_params),
-            rod_journal: rj3,
+           rod_journal: rj4,
             intake: intake,
             exhaust_system: exhaust1,
+			primary_length: (spacing * 2) + basePrimary,
+			sound_attenuation: 1.5,
             ignition_wire: wires.wire4
         )
 		.add_cylinder(
-            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
             connecting_rod: connecting_rod(cr_params),
-            rod_journal: rj5,
+            rod_journal: rj6,
             intake: intake,
             exhaust_system: exhaust1,
+			primary_length: (spacing * 1) + basePrimary,
+			sound_attenuation: 1.5,
             ignition_wire: wires.wire6
         )
         .set_cylinder_head(
@@ -327,30 +345,34 @@ public node subaru_ej25 {
 
         intake_lobe_profile: intake_lobe,
         exhaust_lobe_profile: exhaust_lobe,
-        intake_lobe_center: 77 * units.deg,
-        exhaust_lobe_center: 72 * units.deg,
+        intake_lobe_center: 117 * units.deg,
+        exhaust_lobe_center: 112 * units.deg,
         base_radius: (34.0 / 2) * units.mm
     )
 
     function timing_curve(1000 * units.rpm)
     timing_curve
-        .add_sample(0000 * units.rpm, 25 * units.deg)
-        .add_sample(1000 * units.rpm, 25 * units.deg)
-        .add_sample(2000 * units.rpm, 30 * units.deg)
+        .add_sample(0000 * units.rpm, 0 * units.deg)
+        .add_sample(1000 * units.rpm, 0 * units.deg)
+        .add_sample(2000 * units.rpm, 0 * units.deg)
         .add_sample(3000 * units.rpm, 40 * units.deg)
         .add_sample(4000 * units.rpm, 40 * units.deg)
+		.add_sample(5000 * units.rpm, 40 * units.deg)
+		.add_sample(6000 * units.rpm, 40 * units.deg)
+		.add_sample(7000 * units.rpm, 40 * units.deg)
+		.add_sample(8000 * units.rpm, 40 * units.deg)
 
     ignition_module ignition_module(
         timing_curve: timing_curve,
         rev_limit: 7200 * units.rpm,
-        limiter_duration: 0.08)
+        limiter_duration: 0.1)
     ignition_module
             .connect_wire(wires.wire1, (0.0 / 6.0) * cycle)
-            .connect_wire(wires.wire3, (1.0 / 6.0) * cycle)
-            .connect_wire(wires.wire5, (2.0 / 6.0) * cycle)
-            .connect_wire(wires.wire2, (3.0 / 6.0) * cycle)
-			.connect_wire(wires.wire4, (4.0 / 6.0) * cycle)
-			.connect_wire(wires.wire6, (5.0 / 6.0) * cycle)
+            .connect_wire(wires.wire6, (1.0 / 6.0) * cycle)
+			.connect_wire(wires.wire3, (2.0 / 6.0) * cycle)
+			.connect_wire(wires.wire2, (3.0 / 6.0) * cycle)
+            .connect_wire(wires.wire5, (4.0 / 6.0) * cycle)
+            .connect_wire(wires.wire4, (5.0 / 6.0) * cycle)
 
     engine.add_ignition_module(ignition_module)
 }
@@ -362,7 +384,7 @@ private node impreza {
             drag_coefficient: 0.2,
             cross_sectional_area: (66 * units.inch) * (56 * units.inch),
             diff_ratio: 3.9,
-            tire_radius: 10 * units.inch,
+            tire_radius: 13.4 * units.inch,
             rolling_resistance: 300 * units.N
         );
 }
@@ -373,9 +395,9 @@ private node impreza_transmission {
             max_clutch_torque: 300 * units.lb_ft
         )
         .add_gear(3.636)
-        .add_gear(2.375)
-        .add_gear(1.761)
-        .add_gear(1.346)
+        .add_gear(2.235)
+        .add_gear(1.521)
+        .add_gear(1.137)
         .add_gear(0.971)
         .add_gear(0.756);
 }
